@@ -2,70 +2,58 @@ import { Component, OnInit } from '@angular/core';
 import { User } from '../User';
 import { GetServiceService } from '../get-service.service';
 import { Employee } from '../Employee';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-c1',
   template: `
-    <button (click)="getUsers()">Get Users</button>
-    <button (click)="getEmployees()">Get Employees from localhost</button>
-    <div *ngIf="isUserSet">
-    <table border="1" style="width:33%;">
-    <tr>
-    <th colspan="2">User Id</th>
-    <th colspan="5"> Title <th>
-    <th colspan="5"> Body </th>
-    </tr>
-    <div *ngFor="let user of users">
-    <tr>
-    <td colspan="2">{{user.userId}}</td>
-    <td colspan="5">{{user.title}}</td>
-    <td colspan="5">{{user.body.substring(0,10)}}</td>
-    </tr>
-    </div>
-    </table>
-    </div>
     <div  *ngIf="isEmployeeSet">
     <table border="1" style="width:33%;">
     <tr>
     <th>EmployeeId</th>
-    <th >Name <th>
-    <th> Field </th>
+    <th>Name <th>
+    <th>Field</th>
     <th>Salary/Month</th>
     </tr>
     <div *ngFor="let employee of employees">
-    <tr>
-    <td >{{employee.empId}}</td>
-    <td >{{employee.empName}}</td>
+    <tr (click)="goToEmployee(employee.empId)">
+    <td>{{employee.empId}}</td>
+    <td>{{employee.empName}}</td>
     <td>{{employee.field}}</td>
     <td>{{employee.salaryPm}}</td>
     </tr>
     </div>
     </table>
     </div>
-  `,
+    <button (click)="showAddForm()">Add</button>
+    <div *ngIf="toAdd">
+    <form>
+   Emp Id: <input #empId type="text"><br>
+   Emp Name: <input #empName type="text"><br>
+   Emp Field: <input #empField type="text"><br>
+   Emp Salary Per Month: <input #salaryPm type="text"><br>
+   <button (click)="addEmployee(empId.value,empName.value,empField.value,salaryPm.value)">Save</button>
+   </form>
+    </div>
+      `,
   styles: []
 })
 export class C1Component implements OnInit {
-  users:User[];
   employees:Employee[];
-  isUserSet:boolean
   isEmployeeSet:boolean
-  constructor(private service:GetServiceService) { 
-    this.isUserSet=false;
+  toAdd:boolean;
+  constructor(private service:GetServiceService,private router:Router) { 
+
     this.isEmployeeSet=false;
+    this.toAdd=false;
   }
 
   ngOnInit() {
-
+    this.getEmployees();
   }
-  public getUsers()
+  public showAddForm()
   {
-    this.service.getPosts().subscribe((data=>
-      {
-        this.isUserSet=true;
-        console.log(data);
-        this.users=data;
-      }))
+    this.toAdd=true;
   }
   public getEmployees()
   {
@@ -76,6 +64,20 @@ export class C1Component implements OnInit {
         this.employees=data;
       }
       ))
+  }
+  public addEmployee(id,name,fld,spm)
+  {
+    console.log("clicked");
+    var emp:Employee;
+    emp={empId:id,empName:name,field:fld,salaryPm:spm};
+    this.service.addEmployee(emp).subscribe((data =>
+      {
+        console.log(data);
+      }))
+  }
+  public goToEmployee(empId:number)
+  {
+    this.router.navigate(['/employee',empId])
   }
 
 }

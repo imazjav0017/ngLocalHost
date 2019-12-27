@@ -18,4 +18,13 @@ export class GetServiceService {
   {
     return this.http.get<Employee[]>(this.localUrl+"/employees");
   }
+  public addEmployee(emp:Employee):Observable<Employee>
+  {
+    console.log("click");
+    return this.http.post<Employee>(this.localUrl+"/employees",emp);
+  }
+  public getEmployee(empId):Observable<Employee>
+  {
+    return this.http.get<Employee>(this.localUrl+"/employees/"+empId);
+  }
 }
